@@ -115,7 +115,6 @@ Kết quả do học viên trực tiếp kiểm chứng trên Railway
 - `screenshots/dashboard.png` — trang quản lý service trên platform
 - `screenshots/health.png` — kết quả gọi `/health` từ trình duyệt hoặc curl
 
-> Chưa có ảnh — cần bổ sung trước khi nộp bài.
 
 ---
 
