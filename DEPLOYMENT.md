@@ -70,18 +70,42 @@ done; echo
 
 ## Kết Quả Chạy Thật
 
-Kiểm chứng thủ công trên Railway:
+Kết quả do học viên trực tiếp kiểm chứng trên Railway
+(Public URL: https://day12-agent-production-62c1.up.railway.app):
 
 ```
-GET /health → 200 {"status":"ok"}
-GET /ready → 200 {"status":"ready","redis":true}
-POST /ask không API key → 401
-POST /ask có API key hợp lệ → 200, trả về answer
-Rate limit (limit 10/phút): request 1–10 → 200; request 11–12 → 429
-Conversation history (Redis): request đầu history_length=0;
-  request thứ hai cùng user history_length=2
-Cost guard live HTTP 402: chưa kiểm chứng trên Railway
-  (unit test cost/budget: 7/7 PASSED)
+1. Railway Deployment
+   Platform: Railway — agent chạy trên public HTTPS, Redis đã kết nối.
+
+2. Health & Readiness
+   GET /health → 200 {"status":"ok","service":"day12-agent","version":"1.0.0"}
+   GET /ready → 200 {"status":"ready","redis":true}
+
+3. Authentication
+   POST /ask không API key → 401 {"detail":"invalid or missing API key"}
+   POST /ask có API key hợp lệ → 200, gồm answer, user_id,
+     history_length, cost_usd và tokens
+
+4. Rate Limiting (10 requests/phút, kiểm chứng live)
+   Requests 1–10 → 200; requests 11–12 → 429
+
+5. Redis Conversation History (user long-cloud-test)
+   Request đầu → history_length=0
+   Request thứ hai cùng user → history_length=2 (shared history)
+
+6. Cost Guard
+   pytest tests/test_cp3.py -k "cost or budget" → 7 passed
+     (gồm unit test HTTP 402)
+   Live HTTP 402 trên Railway: chưa kiểm chứng
+
+7. CP5 Automated Tests (với DEPLOY_API_KEY hợp lệ)
+   tests/test_cp5.py → 9 passed, 4 skipped
+   (4 skip thuộc Local Fallback — không áp dụng vì đã deploy Railway)
+
+8. Full Regression
+   Full pytest → 79 passed, 4 skipped, 1 failed, 12 errors;
+   failure và errors đều thuộc tests/test_bonus_cicd.py
+   (Bonus CI/CD chưa triển khai) — không tuyên bố suite PASS
 ```
 
 ## Ảnh Chụp Màn Hình
